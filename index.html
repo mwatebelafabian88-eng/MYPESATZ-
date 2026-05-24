@@ -1,48 +1,35 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>MYPESATZ Testnet</title>
-</head>
-<body>
-  <h2>MYPESATZ Testnet</h2>
-  <p>Bonyeza chini kujaribu kulipa 0.01 Pi Testnet</p>
-
-  <button onclick="payNow()">Lipa na Pi</button>
-
-  <script src="https://sdk.minepi.com/pi-sdk.js"></script>
-  <script>
-    Pi.init({ version: "2.0", sandbox: true });
-
-    async function payNow() {
-      try {
-        const scopes = ['username', 'payments'];
-        const auth = await Pi.authenticate(scopes);
-        console.log("Authenticated:", auth.user.username);
-
-        await Pi.createPayment({
-          amount: 0.01,
-          memo: "Test payment MYPESATZ",
-          metadata: { orderId: "test123" },
-          onReadyForServerApproval: async (paymentId) => {
-            await fetch("/api/approve", {
-              method: "POST",
-              headers: {"Content-Type": "application/json"},
-              body: JSON.stringify({ paymentId })
-            });
-          },
-          onReadyForServerCompletion: async (paymentId, txid) => {
-            await fetch("/api/complete", {
-              method: "POST",
-              headers: {"Content-Type": "application/json"},
-              body: JSON.stringify({ paymentId, txid })
-            });
-          }
-        });
-      } catch (err) {
-        console.error("Error:", err);
-        alert("Kuna error: " + err.message);
-      }
-    }
-  </script>
-</body>
-</html>
+await Pi.createPayment({
+  amount: 0.01,
+  memo: "Test payment MYPESATZ",
+  metadata: { orderId: "test123" },
+  
+  // Callback 1: Approve payment kwa backend yako
+  onReadyForServerApproval: async (paymentId) => {
+    await fetch("/api/approve", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({ paymentId })
+    });
+  },
+  
+  // Callback 2: Complete payment kwa backend yako
+  onReadyForServerCompletion: async (paymentId, txid) => {
+    await fetch("/api/complete", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({ paymentId, txid })
+    });
+  },
+  
+  // Callback 3: User anacancel payment
+  onCancel: (paymentId) => {
+    console.log("Payment cancelled:", paymentId);
+    alert("Umekatisha malipo");
+  },
+  
+  // Callback 4: Kuna error
+  onError: (error, paymentId) => {
+    console.log("Payment error:", error);
+    alert("Kuna error: " + error);
+  }
+});
