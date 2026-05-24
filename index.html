@@ -1,112 +1,46 @@
 <!DOCTYPE html>
-<html lang="sw">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MYPESATZ Testnet Payment</title>
-  <script src="https://sdk.minepi.com/pi-sdk.js"></script>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      padding: 50px;
-      background: #f5f5f5;
-    }
-    .container {
-      background: white;
-      padding: 30px;
-      border-radius: 10px;
-      max-width: 400px;
-      margin: auto;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    }
-    button {
-      background: #6d0cbd;
-      color: white;
-      border: none;
-      padding: 15px 30px;
-      font-size: 16px;
-      border-radius: 8px;
-      cursor: pointer;
-      margin-top: 20px;
-    }
-    button:disabled {
-      background: #ccc;
-      cursor: not-allowed;
-    }
-    #status {
-      margin-top: 20px;
-      padding: 10px;
-      border-radius: 5px;
-      display: none;
-    }
-    .success { background: #d4edda; color: #155724; }
-    .error { background: #f8d7da; color: #721c24; }
-  </style>
+  <title>MYPESATZ Testnet</title>
 </head>
 <body>
-  <div class="container">
-    <h2>MYPESATZ Testnet</h2>
-    <p>Bonyeza chini kujaribu kulipa 0.01 Pi Testnet</p>
-    <button id="payBtn" onclick="makePayment()">Lipia 0.01 Pi Testnet</button>
-    <div id="status"></div>
-  </div>
+  <h2>MYPESATZ Testnet</h2>
+  <p>Bonyeza chini kujaribu kulipa 0.01 Pi Testnet</p>
 
+  <button onclick="payNow()">Lipa na Pi</button>
+
+  <script src="https://sdk.minepi.com/pi-sdk.js"></script>
   <script>
-    // 1. Initialize Pi SDK kwa Testnet
     Pi.init({ version: "2.0", sandbox: true });
 
-    function showStatus(message, type) {
-      const statusDiv = document.getElementById('status');
-      statusDiv.textContent = message;
-      statusDiv.className = type;
-      statusDiv.style.display = 'block';
-    }
-
-    async function makePayment() {
-      const btn = document.getElementById('payBtn');
-      btn.disabled = true;
-      btn.textContent = 'Inasubiri...';
-
+    async function payNow() {
       try {
-        // 2. Authenticate user
-        const auth = await Pi.authenticate(['payments']);
-        console.log('Authenticated:', auth.user.uid);
+        const scopes = ['username', 'payments'];
+        const auth = await Pi.authenticate(scopes);
+        console.log("Authenticated:", auth.user.username);
 
-        // 3. Create payment
-        const payment = await Pi.createPayment({
+        await Pi.createPayment({
           amount: 0.01,
-          memo: "Test payment for MYPESATZ",
-          metadata: { app: "MYPESATZ", type: "testnet" }
-        }, {
-          onReadyForServerApproval: async function(paymentId) {
-            showStatus('Payment iko tayari. Inasubiri approval...', 'success');
-            console.log('Payment ID:', paymentId);
-            
-            // Hapa kawaida unasubmit paymentId kwa server yako
-            // Kwa Step 10, Pi itaapprove automatically kwenye Testnet
+          memo: "Test payment MYPESATZ",
+          metadata: { orderId: "test123" },
+          onReadyForServerApproval: async (paymentId) => {
+            await fetch("/api/approve", {
+              method: "POST",
+              headers: {"Content-Type": "application/json"},
+              body: JSON.stringify({ paymentId })
+            });
           },
-          onReadyForServerCompletion: async function(paymentId, txid) {
-            showStatus('Malipo yamefanikiwa! TXID: ' + txid, 'success');
-            console.log('TXID:', txid);
-            btn.textContent = 'Imekamilika ✅';
-          },
-          onCancel: function(paymentId) {
-            showStatus('Malipo yameghairiwa', 'error');
-            btn.disabled = false;
-            btn.textContent = 'Jaribu Tena';
-          },
-          onError: function(error, payment) {
-            showStatus('Kosa: ' + error.message, 'error');
-            btn.disabled = false;
-            btn.textContent = 'Jaribu Tena';
+          onReadyForServerCompletion: async (paymentId, txid) => {
+            await fetch("/api/complete", {
+              method: "POST",
+              headers: {"Content-Type": "application/json"},
+              body: JSON.stringify({ paymentId, txid })
+            });
           }
         });
-
-      } catch (error) {
-        showStatus('Kosa la authentication: ' + error.message, 'error');
-        btn.disabled = false;
-        btn.textContent = 'Jaribu Tena';
+      } catch (err) {
+        console.error("Error:", err);
+        alert("Kuna error: " + err.message);
       }
     }
   </script>
