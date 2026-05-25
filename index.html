@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="sw">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,27 +8,27 @@
     body {
       font-family: Arial, sans-serif;
       text-align: center;
-      padding: 50px 20px;
+      padding: 50px;
       background: #f5f5f5;
     }
     button {
-      background: #6b2fb5;
+      background: #6C4CE6;
       color: white;
       border: none;
       padding: 15px 30px;
-      font-size: 16px;
-      border-radius: 8px;
+      font-size: 18px;
+      border-radius: 10px;
       cursor: pointer;
     }
     button:hover {
-      background: #5a26a0;
+      background: #5539cc;
     }
   </style>
 </head>
 <body>
   <h2>MYPESATZ Testnet</h2>
   <p>Bonyeza chini kujaribu kulipa 0.01 Pi Testnet</p>
-
+  
   <button onclick="payNow()">Lipa na Pi</button>
 
   <script src="https://sdk.minepi.com/pi-sdk.js"></script>
@@ -48,46 +48,34 @@
           amount: 0.01,
           memo: "Test payment MYPESATZ",
           metadata: { orderId: "test123" },
-          
-          // Callback 1: Approve payment on your server
-          onReadyForServerApproval: async (paymentId) => {
-            console.log("Approving payment:", paymentId);
-            const response = await fetch("/api/approve", {
-              method: "POST",
-              headers: {"Content-Type": "application/json"},
-              body: JSON.stringify({ paymentId })
-            });
-            if (!response.ok) throw new Error("Approval failed");
-          },
-          
-          // Callback 2: Complete payment on your server
-          onReadyForServerCompletion: async (paymentId, txid) => {
-            console.log("Completing payment:", paymentId, txid);
-            const response = await fetch("/api/complete", {
-              method: "POST",
-              headers: {"Content-Type": "application/json"},
-              body: JSON.stringify({ paymentId, txid })
-            });
-            if (!response.ok) throw new Error("Completion failed");
-            alert("Malipo yamefanikiwa! Asante.");
-          },
-          
-          // Callback 3: User cancelled - required
-          onCancel: (paymentId) => {
-            console.log("Payment cancelled:", paymentId);
-            alert("Umekatisha malipo");
-          },
-          
-          // Callback 4: Error occurred - required
-          onError: (error, paymentId) => {
-            console.error("Payment error:", error, paymentId);
-            alert("Kuna error: " + error);
+
+          callbacks: {
+            onReadyForServerApproval: async function(paymentId) {
+              console.log("Approving payment:", paymentId);
+              // Hapa unaweza kutuma paymentId kwa backend yako
+              // Kwa sasa tunaacha hivi kwa Testnet
+            },
+
+            onReadyForServerCompletion: async function(paymentId, txid) {
+              console.log("Completing payment:", paymentId, txid);
+              alert("Malipo yamefanikiwa! Asante.");
+            },
+
+            onCancel: function(paymentId) {
+              console.log("Payment cancelled:", paymentId);
+              alert("Uleghairi malipo");
+            },
+
+            onError: function(error, payment) {
+              console.error("Payment error:", error);
+              alert("Kuna tatizo: " + error);
+            }
           }
         });
 
-      } catch (err) {
-        console.error("Auth/Payment Error:", err);
-        alert("Kuna error: " + err.message);
+      } catch (error) {
+        console.error("Error:", error);
+        alert("Error: " + error);
       }
     }
   </script>
