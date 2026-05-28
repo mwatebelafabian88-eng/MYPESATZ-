@@ -1,30 +1,64 @@
-<script src="https://sdk.minepi.com/pi-sdk.js"></script>
-<script>
-  Pi.init({ version: "2.0", sandbox: true });
-</script>
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pi Login Test</title>
+  
+  <script src="https://sdk.minepi.com/pi-sdk.js"></script>
+  <script>
+    Pi.init({ version: "2.0", sandbox: true });
+  </script>
+  
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      text-align: center;
+    }
+    #loginBtn {
+      background: #6f00ff;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    #userInfo {
+      margin-top: 20px;
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
 
-<button id="loginBtn">Login with Pi</button>
-<div id="userInfo"></div>
+  <h2>Test Login with Pi</h2>
+  <button id="loginBtn">Login with Pi</button>
+  <div id="userInfo"></div>
 
-<script>
-  function onIncompletePaymentFound(payment) {
-    console.log("Incomplete payment found:", payment);
-  }
+  <script>
+    function onIncompletePaymentFound(payment) {
+      console.log("Incomplete payment:", payment);
+    }
 
-  document.getElementById('loginBtn').addEventListener('click', function() {
-    
-    const scopes = ['username', 'payments'];
-    
-    Pi.authenticate(scopes, onIncompletePaymentFound)
-      .then(function(auth) {
-        console.log('Login success:', auth);
-        document.getElementById('userInfo').innerHTML = 
-          'Karibu ' + auth.user.username;
-      })
-      .catch(function(error) {
-        console.error('Login failed:', error);
-        alert('Login imeshindwa: ' + error);
-      });
-    
-  });
-</script>
+    document.getElementById('loginBtn').addEventListener('click', function() {
+      
+      const scopes = ['username', 'payments'];
+      
+      Pi.authenticate(scopes, onIncompletePaymentFound)
+        .then(function(auth) {
+          console.log('Login success:', auth);
+          document.getElementById('userInfo').innerHTML = 
+            '✅ Karibu <b>' + auth.user.username + '</b>';
+        })
+        .catch(function(error) {
+          console.error('Login failed:', error);
+          alert('Login imeshindwa: ' + error);
+        });
+      
+    });
+  </script>
+
+</body>
+</html>
