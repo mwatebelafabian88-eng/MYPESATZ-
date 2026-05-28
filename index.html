@@ -1,16 +1,33 @@
 <script src="https://sdk.minepi.com/pi-sdk.js"></script>
-<script>Pi.init({ version: "2.0" })</script>
-// Authenticate the user, and get permission to request payments from them:
-const scopes = ['payments'];
+<script>
+  Pi.init({ version: "2.0", sandbox: true });
+</script>
 
-// Read more about this callback in the SDK reference:
-function onIncompletePaymentFound(payment) { /* ... */ };
+<button id="loginBtn">Login with Pi</button>
+<div id="userInfo"></div>
 
-Pi.authenticate(scopes, onIncompletePaymentFound).then(function(auth) {
-  console.log(`Hi there! You're ready to make payments!`);
-}).catch(function(error) {
-  console.error(error);
-});
+<script>
+  function onIncompletePaymentFound(payment) {
+    console.log("Incomplete payment found:", payment);
+  }
+
+document.getElementById('loginBtn').addEventListener('click', function() {
+    
+    const scopes = ['username', 'payments'];
+    
+    Pi.authenticate(scopes, onIncompletePaymentFound)
+      .then(function(auth) {
+        console.log('Login success:', auth);
+        document.getElementById('userInfo').innerHTML = 
+          'Karibu ' + auth.user.username;
+      })
+      .catch(function(error) {
+        console.error('Login failed:', error);
+        alert('Login imeshindwa: ' + error);
+      });
+    
+  });
+</script>
 
 Pi.createPayment({
   // Amount of π to be paid:
