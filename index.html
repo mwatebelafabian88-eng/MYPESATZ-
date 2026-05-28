@@ -3,97 +3,29 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pi Login + Payment Test</title>
-  
+  <title>MyPesatz Test</title>
   <script src="https://sdk.minepi.com/pi-sdk.js"></script>
+</head>
+<body style="text-align:center; padding:50px; font-family:Arial;">
+  <h2>MyPesatz</h2>
+  <button id="btn" style="padding:15px 30px; background:#7b2cbf; color:white; border:none; border-radius:8px; font-size:16px;">
+    Login with Pi
+  </button>
+  <div id="msg" style="margin-top:20px;"></div>
+
   <script>
     Pi.init({ version: "2.0", sandbox: true });
-  </script>
-  
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 20px;
-      text-align: center;
-    }
-    #loginBtn {
-      background: #6f00ff;
-      color: white;
-      border: none;
-      padding: 12px 24px;
-      font-size: 16px;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-    #userInfo {
-      margin-top: 20px;
-      font-size: 18px;
-    }
-  </style>
-</head>
-<body>
 
-  <h2>Test Login with Pi</h2>
-  <button id="loginBtn">Login with Pi</button>
-  <div id="userInfo"></div>
-
-  <script>
-    function onIncompletePaymentFound(payment) {
-      console.log("Incomplete payment:", payment);
-    }
-
-    document.getElementById('loginBtn').addEventListener('click', function() {
-      
-      const scopes = ['username', 'payments'];
-      
-      Pi.authenticate(scopes, onIncompletePaymentFound)
-        .then(function(auth) {
-          console.log('Login success:', auth);
-          document.getElementById('userInfo').innerHTML = 
-            '✅ Karibu <b>' + auth.user.username + '</b>';
-          
-          // Baada ya login, fanya payment test
-          makeTestPayment();
+    document.getElementById('btn').onclick = function() {
+      Pi.authenticate(['username', 'payments'], function(payment){})
+        .then(function(auth){
+          document.getElementById('msg').innerHTML = '✅ Karibu ' + auth.user.username;
+          alert('Login imefanya kazi! Sasa tunaunda payment...');
         })
-        .catch(function(error) {
-          console.error('Login failed:', error);
-          alert('Login imeshindwa: ' + error);
+        .catch(function(err){
+          alert('Error: ' + err);
         });
-      
-    });
-
-    function makeTestPayment() {
-      const paymentData = {
-        amount: 0.01,
-        memo: "Test payment from mypesatz",
-        metadata: { orderId: "12345" }
-      };
-
-      const callbacks = {
-        onReadyForServerApproval: function(paymentId) {
-          console.log("Ready for approval:", paymentId);
-          alert("Payment ready! ID: " + paymentId);
-        },
-        
-        onReadyForServerCompletion: function(paymentId, txid) {
-          console.log("Ready for completion:", paymentId, txid);
-          alert("Payment complete! TxID: " + txid);
-        },
-        
-        onCancel: function(paymentId) {
-          console.log("Payment cancelled:", paymentId);
-          alert("Umeghairi malipo");
-        },
-        
-        onError: function(error) {
-          console.error("Payment error:", error);
-          alert("Hitilafu: " + error);
-        }
-      };
-
-      Pi.createPayment(paymentData, callbacks);
     }
   </script>
-
 </body>
 </html>
