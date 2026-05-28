@@ -1,68 +1,63 @@
-<script>
-  function onIncompletePaymentFound(payment) {
-    console.log("Incomplete payment:", payment);
-  }
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MyPesatz Test Payment</title>
+  <script src="https://sdk.minepi.com/pi-sdk.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 50px 20px;
+      background: #f5f5f5;
+    }
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      max-width: 400px;
+      margin: 0 auto;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    button {
+      background: #7b2cbf;
+      color: white;
+      border: none;
+      padding: 14px 28px;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+    button:hover {
+      background: #5a189a;
+    }
+    #userInfo {
+      margin-top: 20px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>MyPesatz</h2>
+    <p>Bonyeza chini kuanza test payment ya 0.01 Pi</p>
+    <button id="loginBtn">Login with Pi</button>
+    <div id="userInfo"></div>
+  </div>
 
-  document.getElementById('loginBtn').addEventListener('click', function() {
-    const scopes = ['username', 'payments'];
-    
-    Pi.authenticate(scopes, onIncompletePaymentFound)
-      .then(function(auth) {
-        document.getElementById('userInfo').innerHTML = 
-          '✅ Karibu <b>' + auth.user.username + '</b>';
-        
-        makeTestPayment();
-      })
-      .catch(function(error) {
-        alert('Login imeshindwa: ' + error);
-      });
-  });
+  <script>
+    Pi.init({ version: "2.0", sandbox: true });
 
-  function makeTestPayment() {
-    const paymentData = {
-      amount: 0.01,
-      memo: "Test payment from mypesatz",
-      metadata: { orderId: "12345" }
-    };
+    function onIncompletePaymentFound(payment) {
+      console.log("Incomplete payment found:", payment);
+    }
 
-    const callbacks = {
-      onReadyForServerApproval: function(paymentId) {
-        console.log("Payment ID:", paymentId);
-        
-        // Hapa tunaonyesha button ya approve
-        document.getElementById('userInfo').innerHTML += 
-          '<br><br><button id="approveBtn" style="background:#00c851;color:white;padding:10px 20px;border:none;border-radius:8px;cursor:pointer;">Approve Payment</button>';
-        
-        document.getElementById('approveBtn').onclick = function() {
-          approvePayment(paymentId);
-        };
-      },
+    document.getElementById('loginBtn').addEventListener('click', function() {
+      const scopes = ['username', 'payments'];
       
-      onReadyForServerCompletion: function(paymentId, txid) {
-        alert("Payment complete! TxID: " + txid);
-      },
-      
-      onCancel: function(paymentId) {
-        alert("Umeghairi malipo");
-      },
-      
-      onError: function(error) {
-        alert("Hitilafu: " + error);
-      }
-    };
-
-    Pi.createPayment(paymentData, callbacks);
-  }
-
-  function approvePayment(paymentId) {
-    Pi.approvePayment(paymentId)
-      .then(function() {
-        alert("Approved! Sasa bonyeza Complete kwenye Pi Browser > Payments > Pending");
-        document.getElementById('approveBtn').innerText = "Approved ✓";
-        document.getElementById('approveBtn').disabled = true;
-      })
-      .catch(function(error) {
-        alert("Approve imeshindwa: " + error);
-      });
-  }
-</script>
+      Pi.authenticate(scopes, onIncompletePaymentFound)
+        .then(function(auth) {
+          document.getElementById('userInfo').innerHTML = 
+            '✅ Karibu <b>' +
