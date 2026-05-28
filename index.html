@@ -11,7 +11,7 @@
     console.log("Incomplete payment found:", payment);
   }
 
-document.getElementById('loginBtn').addEventListener('click', function() {
+  document.getElementById('loginBtn').addEventListener('click', function() {
     
     const scopes = ['username', 'payments'];
     
@@ -25,3 +25,6 @@ document.getElementById('loginBtn').addEventListener('click', function() {
         console.error('Login failed:', error);
         alert('Login imeshindwa: ' + error);
       });
+    
+  });
+</script>
