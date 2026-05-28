@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pi Login Test</title>
+  <title>Pi Login + Payment Test</title>
   
   <script src="https://sdk.minepi.com/pi-sdk.js"></script>
   <script>
@@ -51,6 +51,9 @@
           console.log('Login success:', auth);
           document.getElementById('userInfo').innerHTML = 
             '✅ Karibu <b>' + auth.user.username + '</b>';
+          
+          // Baada ya login, fanya payment test
+          makeTestPayment();
         })
         .catch(function(error) {
           console.error('Login failed:', error);
@@ -58,6 +61,38 @@
         });
       
     });
+
+    function makeTestPayment() {
+      const paymentData = {
+        amount: 0.01,
+        memo: "Test payment from mypesatz",
+        metadata: { orderId: "12345" }
+      };
+
+      const callbacks = {
+        onReadyForServerApproval: function(paymentId) {
+          console.log("Ready for approval:", paymentId);
+          alert("Payment ready! ID: " + paymentId);
+        },
+        
+        onReadyForServerCompletion: function(paymentId, txid) {
+          console.log("Ready for completion:", paymentId, txid);
+          alert("Payment complete! TxID: " + txid);
+        },
+        
+        onCancel: function(paymentId) {
+          console.log("Payment cancelled:", paymentId);
+          alert("Umeghairi malipo");
+        },
+        
+        onError: function(error) {
+          console.error("Payment error:", error);
+          alert("Hitilafu: " + error);
+        }
+      };
+
+      Pi.createPayment(paymentData, callbacks);
+    }
   </script>
 
 </body>
