@@ -1,30 +1,103 @@
 <!DOCTYPE html>
-<html>
+<html lang="sw">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MyPesatz Test</title>
+  <title>MyPesatz Test Payment</title>
+  
+  <!-- Pi SDK - Lazima iwepo -->
   <script src="https://sdk.minepi.com/pi-sdk.js"></script>
+  
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 50px 20px;
+      background: #f5f5f5;
+    }
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      max-width: 400px;
+      margin: 0 auto;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    button {
+      background: #7b2cbf;
+      color: white;
+      border: none;
+      padding: 14px 28px;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 15px;
+      width: 100%;
+    }
+    button:hover {
+      background: #5a189a;
+    }
+    #msg {
+      margin-top: 20px;
+      font-size: 16px;
+      color: #333;
+    }
+  </style>
 </head>
-<body style="text-align:center; padding:50px; font-family:Arial;">
-  <h2>MyPesatz</h2>
-  <button id="btn" style="padding:15px 30px; background:#7b2cbf; color:white; border:none; border-radius:8px; font-size:16px;">
-    Login with Pi
-  </button>
-  <div id="msg" style="margin-top:20px;"></div>
+<body>
+  <div class="container">
+    <h2>MyPesatz</h2>
+    <p>Bonyeza chini kuanza test payment ya 0.01 Pi</p>
+    <button id="btn">Login with Pi</button>
+    <div id="msg"></div>
+  </div>
 
   <script>
+    // Init Pi SDK
     Pi.init({ version: "2.0", sandbox: true });
 
+    function onIncompletePaymentFound(payment) {
+      console.log("Incomplete payment found:", payment);
+    }
+
     document.getElementById('btn').onclick = function() {
-      Pi.authenticate(['username', 'payments'], function(payment){})
+      Pi.authenticate(['username', 'payments'], onIncompletePaymentFound)
         .then(function(auth){
-          document.getElementById('msg').innerHTML = '✅ Karibu ' + auth.user.username;
-          alert('Login imefanya kazi! Sasa tunaunda payment...');
+          document.getElementById('msg').innerHTML = '✅ Karibu <b>' + auth.user.username + '</b>';
+          makeTestPayment();
         })
         .catch(function(err){
-          alert('Error: ' + err);
+          alert('Login Error: ' + err);
         });
+    }
+
+    function makeTestPayment() {
+      const paymentData = {
+        amount: 0.01,
+        memo: "Test payment from mypesatz",
+        metadata: { orderId: "12345" }
+      };
+
+      const callbacks = {
+        onReadyForServerApproval: function(paymentId) {
+          alert("Payment ID: " + paymentId + "\n\nSasa nenda Pi Browser > Payments > Pending ku-approve na ku-complete");
+        },
+        
+        onReadyForServerCompletion: function(paymentId, txid) {
+          alert("✅ Payment complete! TxID: " + txid);
+          document.getElementById('msg').innerHTML += '<br><br>✅ Malipo yamekamilika!';
+        },
+        
+        onCancel: function(paymentId) {
+          alert("Umeghairi malipo");
+        },
+        
+        onError: function(error) {
+          alert("Hitilafu: " + error);
+        }
+      };
+
+      Pi.createPayment(paymentData, callbacks);
     }
   </script>
 </body>
