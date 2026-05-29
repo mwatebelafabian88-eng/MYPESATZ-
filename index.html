@@ -35,15 +35,51 @@
       statusDiv.innerText = msg;
     }
 
-    function onIncompletePaymentFound(payment) {
-      showStatus('Kuna malipo kamili: ' + payment.identifier, 'info');
-      console.log('Incomplete payment found:', payment);
-    }
-
-    // MUHIMU: Anzisha Pi SDK kwanza
+    // MUHIMU: Anzisha Pi SDK na callback zote 5
     Pi.init({ 
       version: "2.0", 
-      sandbox: true  // Weka false ukienda Mainnet
+      sandbox: true,
+      
+      // 1. Malipo ya zamani hayajakamilika
+      onIncompletePaymentFound: function(payment) {
+        showStatus('Kuna malipo kamili: ' + payment.identifier, 'info');
+        console.log('Incomplete:', payment);
+      },
+      
+      // 2. Pi inaomba server yako i-approve malipo
+      onReadyForServerApproval: function(paymentId) {
+        showStatus('Server ina-approve... ID: ' + paymentId, 'info');
+        // Hapa server yako lazima iite /approve API
+        fetch('/api/approve', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({paymentId})
+        });
+      },
+      
+      // 3. User amekubali Pi Wallet, server kamilisha
+      onReadyForServerCompletion: function(paymentId, txid) {
+        showStatus('Server inakamilisha... Tx: ' + txid, 'success');
+        // Hapa server yako lazima iite /complete API
+        fetch('/api/complete', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({paymentId, txid})
+        });
+      },
+      
+      // 4. User ameghairi malipo
+      onCancel: function(paymentId) {
+        showStatus('Umekanseli malipo: ' + paymentId, 'error');
+        btn.disabled = false;
+      },
+      
+      // 5. Kosa limetokea
+      onError: function(error, payment) {
+        showStatus('Kosa: ' + error, 'error');
+        console.error(error);
+        btn.disabled = false;
+      }
     });
 
     btn.onclick = async function() {
@@ -52,26 +88,19 @@
         showStatus('Inaunganisha Pi Wallet...', 'info');
 
         const scopes = ['username', 'payments'];
-        const auth = await Pi.authenticate(scopes, onIncompletePaymentFound);
+        const auth = await Pi.authenticate(scopes, Pi.onIncompletePaymentFound);
         showStatus('Umeunganishwa: ' + auth.user.username, 'success');
 
         showStatus('Inatengeneza malipo...', 'info');
-        const paymentData = {
+        await Pi.createPayment({
           amount: 0.01,
           memo: "Test payment MyPesatz",
           metadata: { orderId: "order_" + Date.now() }
-        };
-        
-        const payment = await Pi.createPayment(paymentData);
-        showStatus('Malipo yamefunguliwa! Nenda Pi Wallet kukamilisha', 'success');
-        console.log('Payment created:', payment.identifier);
+        });
         
       } catch (err) {
         showStatus('Kosa: ' + err.message, 'error');
-        console.error(err);
         btn.disabled = false;
       }
     }
-  </script>
-</body>
-</html>
+ 
