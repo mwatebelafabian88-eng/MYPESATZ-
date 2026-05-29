@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MyPesatz - Pi Payment</title>
-  <!-- MUHIMU: Ongeza Pi SDK hapa -->
   <script src="https://sdk.minepi.com/pi-sdk.js"></script>
   <style>
     body { font-family: Arial; display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #f0f2f5; margin: 0; }
@@ -12,7 +11,6 @@
     h2 { color: #6B46C1; margin-bottom: 10px; }
     p { color: #666; margin-bottom: 30px; }
     button { background: #6B46C1; color: white; padding: 16px 32px; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; width: 100%; }
-    button:hover { background: #553C9A; }
     button:disabled { background: #ccc; cursor: not-allowed; }
     #status { margin-top: 20px; padding: 12px; border-radius: 8px; font-size: 14px; }
     .success { background: #d4edda; color: #155724; }
@@ -37,23 +35,26 @@
       statusDiv.innerText = msg;
     }
 
-    // Pi itaita hii kama kuna malipo ya zamani hayajakamilika
     function onIncompletePaymentFound(payment) {
       showStatus('Kuna malipo kamili: ' + payment.identifier, 'info');
       console.log('Incomplete payment found:', payment);
     }
+
+    // MUHIMU: Anzisha Pi SDK kwanza
+    Pi.init({ 
+      version: "2.0", 
+      sandbox: true  // Weka false ukienda Mainnet
+    });
 
     btn.onclick = async function() {
       try {
         btn.disabled = true;
         showStatus('Inaunganisha Pi Wallet...', 'info');
 
-        // HATUA 1: Connect - Lazima user aruhusu kwanza
         const scopes = ['username', 'payments'];
         const auth = await Pi.authenticate(scopes, onIncompletePaymentFound);
         showStatus('Umeunganishwa: ' + auth.user.username, 'success');
 
-        // HATUA 2: Tengeneza malipo - Pi SDK inatengeneza ID yenyewe
         showStatus('Inatengeneza malipo...', 'info');
         const paymentData = {
           amount: 0.01,
