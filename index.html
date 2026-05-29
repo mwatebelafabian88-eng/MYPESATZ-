@@ -3,101 +3,60 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MyPesatz Test Payment</title>
-  
-  <!-- Pi SDK - Lazima iwepo -->
+  <title>MyPesatz - Pi Payment</title>
   <script src="https://sdk.minepi.com/pi-sdk.js"></script>
-  
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      padding: 50px 20px;
-      background: #f5f5f5;
-    }
-    .container {
-      background: white;
-      padding: 30px;
-      border-radius: 12px;
-      max-width: 400px;
-      margin: 0 auto;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    }
-    button {
-      background: #7b2cbf;
-      color: white;
-      border: none;
-      padding: 14px 28px;
-      font-size: 16px;
-      border-radius: 8px;
-      cursor: pointer;
-      margin-top: 15px;
-      width: 100%;
-    }
-    button:hover {
-      background: #5a189a;
-    }
-    #msg {
-      margin-top: 20px;
-      font-size: 16px;
-      color: #333;
-    }
+    body { font-family: Arial; display: flex; justify-content: center; align-items: center; height: 100vh; background: #f5f5f5; }
+    .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); text-align: center; }
+    button { background: #6B46C1; color: white; padding: 14px 28px; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; }
+    button:disabled { background: #ccc; cursor: not-allowed; }
+    #status { margin-top: 20px; color: #333; }
   </style>
 </head>
 <body>
-  <div class="container">
+  <div class="card">
     <h2>MyPesatz</h2>
     <p>Bonyeza chini kuanza test payment ya 0.01 Pi</p>
-    <button id="btn">Login with Pi</button>
-    <div id="msg"></div>
+    <button id="pi-login">Login with Pi</button>
+    <div id="status"></div>
   </div>
 
   <script>
-    // Init Pi SDK
-    Pi.init({ version: "2.0", sandbox: true });
-
+    // Hii function Pi itaita kama kuna malipo ambayo hayajakamilika
     function onIncompletePaymentFound(payment) {
-      console.log("Incomplete payment found:", payment);
+      document.getElementById('status').innerText = 'Kuna malipo kamili: ' + payment.identifier;
+      console.log('Incomplete payment:', payment);
     }
 
-    document.getElementById('btn').onclick = function() {
-      Pi.authenticate(['username', 'payments'], onIncompletePaymentFound)
-        .then(function(auth){
-          document.getElementById('msg').innerHTML = '✅ Karibu <b>' + auth.user.username + '</b>';
-          makeTestPayment();
-        })
-        .catch(function(err){
-          alert('Login Error: ' + err);
+    document.getElementById('pi-login').onclick = async function() {
+      const btn = document.getElementById('pi-login');
+      const status = document.getElementById('status');
+      
+      try {
+        btn.disabled = true;
+        status.innerText = 'Tafadhali subiri...';
+
+        // HATUA 1: Connect Pi - lazima kwanza
+        const scopes = ['username', 'payments'];
+        const auth = await Pi.authenticate(scopes, onIncompletePaymentFound);
+        status.innerText = 'Umeunganishwa: ' + auth.user.username;
+
+        // HATUA 2: Tengeneza malipo - Pi SDK itatengeneza ID yenyewe
+        status.innerText = 'Tengeneza malipo...';
+        const payment = await Pi.createPayment({
+          amount: 0.01,
+          memo: "Test payment ya 0.01 Pi - MyPesatz",
+          metadata: { orderId: "test_" + Date.now() }
         });
-    }
 
-    function makeTestPayment() {
-      const paymentData = {
-        amount: 0.01,
-        memo: "Test payment from mypesatz",
-        metadata: { orderId: "12345" }
-      };
-
-      const callbacks = {
-        onReadyForServerApproval: function(paymentId) {
-          alert("Payment ID: " + paymentId + "\n\nSasa nenda Pi Browser > Payments > Pending ku-approve na ku-complete");
-        },
+        status.innerText = 'Malipo yameanza! ID: ' + payment.identifier;
+        alert('Sasa fungua Pi Wallet ili kukamilisha malipo');
         
-        onReadyForServerCompletion: function(paymentId, txid) {
-          alert("✅ Payment complete! TxID: " + txid);
-          document.getElementById('msg').innerHTML += '<br><br>✅ Malipo yamekamilika!';
-        },
-        
-        onCancel: function(paymentId) {
-          alert("Umeghairi malipo");
-        },
-        
-        onError: function(error) {
-          alert("Hitilafu: " + error);
-        }
-      };
-
-      Pi.createPayment(paymentData, callbacks);
+      } catch (err) {
+        status.innerText = 'Kosa: ' + err.message;
+        alert('Kosa: ' + err);
+        btn.disabled = false;
+      }
     }
   </script>
 </body>
