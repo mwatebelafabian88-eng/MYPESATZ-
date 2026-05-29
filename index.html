@@ -1,4 +1,5 @@
-<!DOCTYPE html>
+
+ <!DOCTYPE html>
 <html lang="sw">
 <head>
   <meta charset="UTF-8">
@@ -11,7 +12,7 @@
     h2 { color: #6B46C1; margin-bottom: 10px; }
     p { color: #666; margin-bottom: 30px; }
     button { background: #6B46C1; color: white; padding: 16px 32px; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; width: 100%; }
-    button:disabled { background: #ccc; cursor: not-allowed; }
+    button:disabled { background: #ccc; }
     #status { margin-top: 20px; padding: 12px; border-radius: 8px; font-size: 14px; }
     .success { background: #d4edda; color: #155724; }
     .error { background: #f8d7da; color: #721c24; }
@@ -21,12 +22,13 @@
 <body>
   <div class="card">
     <h2>MyPesatz</h2>
-    <p>Bonyeza chini kuanza test payment ya 0.01 Pi</p>
-    <button id="pi-btn">Login & Pay with Pi</button>
+    <p>Test payment 0.01 Pi</p>
+    <button id="pi-btn">Pay with Pi</button>
     <div id="status"></div>
   </div>
 
   <script>
+    const API_URL = 'https://mypesatz.vercel.app'; // BADILI HII WEKA URL YAKO HALISI YA VERCEL
     const statusDiv = document.getElementById('status');
     const btn = document.getElementById('pi-btn');
 
@@ -35,67 +37,53 @@
       statusDiv.innerText = msg;
     }
 
-    // MUHIMU: Anzisha Pi SDK na callback zote 5
     Pi.init({ 
       version: "2.0", 
       sandbox: true,
-      
-      // 1. Malipo ya zamani hayajakamilika
-      onIncompletePaymentFound: function(payment) {
-        showStatus('Kuna malipo kamili: ' + payment.identifier, 'info');
-        console.log('Incomplete:', payment);
-      },
-      
-      // 2. Pi inaomba server yako i-approve malipo
-      onReadyForServerApproval: function(paymentId) {
-        showStatus('Server ina-approve... ID: ' + paymentId, 'info');
-        // Hapa server yako lazima iite /approve API
-        fetch('/api/approve', {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({paymentId})
-        });
-      },
-      
-      // 3. User amekubali Pi Wallet, server kamilisha
-      onReadyForServerCompletion: function(paymentId, txid) {
-        showStatus('Server inakamilisha... Tx: ' + txid, 'success');
-        // Hapa server yako lazima iite /complete API
-        fetch('/api/complete', {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({paymentId, txid})
-        });
-      },
-      
-      // 4. User ameghairi malipo
-      onCancel: function(paymentId) {
-        showStatus('Umekanseli malipo: ' + paymentId, 'error');
-        btn.disabled = false;
-      },
-      
-      // 5. Kosa limetokea
-      onError: function(error, payment) {
-        showStatus('Kosa: ' + error, 'error');
-        console.error(error);
-        btn.disabled = false;
+      onIncompletePaymentFound: (payment) => {
+        showStatus('Kuna malipo kamili...', 'info');
+        Pi.payments.submit(payment);
       }
     });
 
     btn.onclick = async function() {
       try {
         btn.disabled = true;
-        showStatus('Inaunganisha Pi Wallet...', 'info');
-
-        const scopes = ['username', 'payments'];
-        const auth = await Pi.authenticate(scopes, Pi.onIncompletePaymentFound);
-        showStatus('Umeunganishwa: ' + auth.user.username, 'success');
+        showStatus('Inaunganisha Wallet...', 'info');
+        const auth = await Pi.authenticate(['username', 'payments']);
+        showStatus('Habari ' + auth.user.username, 'success');
 
         showStatus('Inatengeneza malipo...', 'info');
-        await Pi.createPayment({
+        
+        // API MPYA: Pi.payments.submit()
+        const payment = await Pi.payments.submit({
           amount: 0.01,
-          memo: "Test payment MyPesatz",
-          metadata: { orderId: "order_" + Date.now() }
+          memo: "Test MyPesatz",
+          metadata: { orderId: Date.now() },
+          onReadyForServerApproval: (paymentId) => {
+            showStatus('Server ina-approve...', 'info');
+            fetch(API_URL + '/api/approve', {
+              method: 'POST',
+              headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify({paymentId})
+            });
+          },
+          onReadyForServerCompletion: (paymentId, txid) => {
+            showStatus('Server inakamilisha...', 'success');
+            fetch(API_URL + '/api/complete', {
+              method: 'POST',
+              headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify({paymentId, txid})
+            });
+          },
+          onCancel: () => {
+            showStatus('Umekanseli', 'error');
+            btn.disabled = false;
+          },
+          onError: (error) => {
+            showStatus('Kosa: ' + error, 'error');
+            btn.disabled = false;
+          }
         });
         
       } catch (err) {
@@ -103,4 +91,6 @@
         btn.disabled = false;
       }
     }
- 
+  </script>
+</body>
+</html>
