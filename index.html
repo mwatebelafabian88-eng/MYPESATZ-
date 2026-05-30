@@ -51,7 +51,7 @@
 </head>
 <body>
   <div class="card">
-    <h2>MIATU</h2>
+    <h2>MIATATU</h2>
     <p>Test Login + Payment 0.01 Pi</p>
     <button id="loginBtn" disabled>Inapakia SDK...</button>
     <div id="userInfo" class="info">Subiri...</div>
@@ -78,19 +78,19 @@
       version: "2.0", 
       sandbox: true,
       onIncompletePaymentFound: function(payment) {
-        showStatus('MIATU: Inakamilisha malipo ya zamani...', 'info');
+        showStatus('MIATATU: Inakamilisha malipo ya zamani...', 'info');
         payment.submit();
       }
     });
 
     btn.disabled = false;
-    btn.innerText = 'Login na Pi - MIATU';
-    showStatus('MIATU tayari', 'info');
+    btn.innerText = 'Login na Pi - MIATATU';
+    showStatus('MIATATU tayari', 'info');
 
     btn.addEventListener('click', async function() {
       try {
         btn.disabled = true;
-        showStatus('MIATU: Inaunganisha Wallet...', 'info');
+        showStatus('MIATATU: Inaunganisha Wallet...', 'info');
         
         const scopes = ['username', 'payments'];
         
@@ -98,7 +98,7 @@
           console.log("Incomplete payment:", payment);
         });
         
-        showStatus('✅ Karibu MIATU, <b>' + auth.user.username + '</b>', 'success');
+        showStatus('✅ Karibu MIATATU, <b>' + auth.user.username + '</b>', 'success');
         console.log('Login success:', auth);
         
         // Baada ya login, fanya payment test
@@ -113,34 +113,34 @@
 
     async function makeTestPayment() {
       try {
-        showStatus('MIATU: Inatengeneza malipo...', 'info');
+        showStatus('MIATATU : Inatengeneza malipo...', 'info');
         
         await Pi.createPayment({
           amount: 0.01,
-          memo: "MIATU Test Payment",
+          memo: "MIATATU Test Payment",
           metadata: { 
-            app: "MIATU",
-            orderId: "MIATU_" + Date.now() 
+            app: "MIATATU",
+            orderId: "MIATATU_" + Date.now() 
           },
           
           onReadyForServerApproval: async function(paymentId) {
-            showStatus('MIATU: Server ina-approve...', 'info');
+            showStatus('MIATATU: Server ina-approve...', 'info');
             console.log("Ready for approval:", paymentId);
             
             // HAPA NDIO KITU KIKUBWA: Piga backend yako
             await fetch(API_URL + '/api/approve', {
               method: 'POST',
               headers: {'Content-Type': 'application/json'},
-              body: JSON.stringify({paymentId, app: 'MIATU'})
+              body: JSON.stringify({paymentId, app: 'MIATATU'})
             });
           },
           
           onReadyForServerCompletion: async function(paymentId, txid) {
-            showStatus('MIATU: Server inakamilisha...', 'info');
+            showStatus('MIATATU: Server inakamilisha...', 'info');
             console.log("Ready for completion:", paymentId, txid);
             
             // HAPA: Piga backend kukamilisha
             await fetch(API_URL + '/api/complete', {
               method: 'POST',
               headers: {'Content-Type': 'application/json'},
-              body: JSON.stringify({paymentId, txid, app: 'MI
+              body: JSON.stringify({paymentId, txid, app: 'MIATATU
