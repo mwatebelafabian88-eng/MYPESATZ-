@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MIATU - Pi Login + Payment</title>
+  <title>MIATATU- Pi Login + Payment</title>
   
   <script src="https://sdk.minepi.com/pi-sdk.js" defer></script>
   
@@ -128,7 +128,7 @@
             console.log("Ready for approval:", paymentId);
             
             // HAPA NDIO KITU KIKUBWA: Piga backend yako
-            await fetch(API_URL + '/api/approve', {
+            await fetch https://mypesatz.vercel.app/api/approve', {
               method: 'POST',
               headers: {'Content-Type': 'application/json'},
               body: JSON.stringify({paymentId, app: 'MIATATU'})
@@ -140,7 +140,7 @@
             console.log("Ready for completion:", paymentId, txid);
             
             // HAPA: Piga backend kukamilisha
-            await fetch(API_URL + '/api/complete', {
+            await fetch(const API_URL =  https://mypesatz.vercel.app/api/complete', {
               method: 'POST',
               headers: {'Content-Type': 'application/json'},
               body: JSON.stringify({paymentId, txid, app: 'MIATATU
