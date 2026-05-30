@@ -73,7 +73,7 @@
         onReadyForServerApproval: function(paymentId) {
           console.log("Ready for approval:", paymentId);
           alert("Payment ready! ID: " + paymentId);
-    return fetch https://mypesatz.vercel.app/api/approve', {  // <-- Hii 'return' ni muhimu sana
+    return fetch(API_URL/api/approve', {  // <-- Hii 'return' ni muhimu sana
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({paymentId})
