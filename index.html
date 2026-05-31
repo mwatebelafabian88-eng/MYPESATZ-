@@ -66,93 +66,34 @@
       const paymentData = {
         amount: 0.01,
         memo: "Test payment from mypesatz",
-        metadata: { orderId: "test123 " }
+        metadata: { orderId: "12345" }
       };
 
       const callbacks = {
-        function makeTestPayment() {
-const paymentData = {
-amount: 0.01,
-memo: "Test payment from mypesatz",
-metadata: {
-orderId: "test123 "
-}
-};
+        onReadyForServerApproval: function(paymentId) {
+          console.log("Ready for approval:", paymentId);
+          alert("Payment ready! ID: " + paymentId);
+        },
+        
+        onReadyForServerCompletion: function(paymentId, txid) {
+          console.log("Ready for completion:", paymentId, txid);
+          alert("Payment complete! TxID: " + txid);
+        },
+        
+        onCancel: function(paymentId) {
+          console.log("Payment cancelled:", paymentId);
+          alert("Umeghairi malipo");
+        },
+        
+        onError: function(error) {
+          console.error("Payment error:", error);
+          alert("Hitilafu: " + error);
+        }
+      };
 
-const callbacks = {
+      Pi.createPayment(paymentData, callbacks);
+    }
+  </script>
 
-onReadyForServerApproval: async function(paymentId) {
-
-  try {
-
-    const response = await fetch("/api/approve", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        paymentId: paymentId,
-        apiKey: "SAGEJAN7QFAKQGKS7FKUIZJNIWRCYODXIXFWHUEYMOKKU7UI72657QQV"
-      })
-    });
-
-    const result = await response.json();
-
-    console.log("Approve result:", result);
-
-  } catch (err) {
-
-    console.error(err);
-    alert("Approve failed");
-
-  }
-},
-
-onReadyForServerCompletion: async function(paymentId, txid) {
-
-  try {
-
-    const response = await fetch("/api/complete", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        paymentId: paymentId,
-        txid: txid,
-        apiKey: "SAGEJAN7QFAKQGKS7FKUIZJNIWRCYODXIXFWHUEYMOKKU7UI72657QQV"
-      })
-    });
-
-    const result = await response.json();
-
-    console.log("Complete result:", result);
-
-    alert("✅ Payment completed successfully");
-
-  } catch (err) {
-
-    console.error(err);
-    alert("Completion failed");
-
-  }
-},
-
-onCancel: function(paymentId) {
-
-  console.log("Cancelled:", paymentId);
-  alert("Payment cancelled");
-
-},
-
-onError: function(error) {
-
-  console.error(error);
-  alert("Payment error: " + JSON.stringify(error));
-
-}
-
-};
-
-Pi.createPayment(paymentData, callbacks);
-}
+</body>
+</html>
