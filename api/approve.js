@@ -2,7 +2,7 @@ import axios from "axios";
 
 export default async function handler(req, res) {
 
-  const API_KEY = "SAGEJAN7QFAKQGKS7FKUIZJNIWRCYODXIXFWHUEYMOKKU7UI72657QQV";
+  const API_KEY";
 
   if (req.headers["x-api-key"] !== API_KEY) {
     return res.status(401).json({ error: "Unauthorized" });
