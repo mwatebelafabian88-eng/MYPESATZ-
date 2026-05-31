@@ -1,20 +1,38 @@
+import axios from "axios";
+
 export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+
+  const API_KEY = "SAGEJAN7QFAKQGKS7FKUIZJNIWRCYODXIXFWHUEYMOKKU7UI72657QQV";
+
+  if (req.headers["x-api-key"] !== API_KEY) {
+    return res.status(401).json({ error: "Unauthorized" });
   }
 
   const { paymentId, txid } = req.body;
-  console.log('Kazi 2: Inakamilisha malipo ID:', paymentId, 'Tx:', txid);
 
-  // Hapa unahifadhi kwenye database: paymentId, txid, status="completed"
   try {
-    return res.status(200).json({ 
-      success: true,
-      message: 'Malipo yamekamilika',
-      txid: txid
-    });
+
+    // COMPLETE PAYMENT
+    const response = await axios.post(
+      `https://api.minepi.com/v2/payments/${paymentId}/complete`,
+      {
+        txid
+      },
+      {
+        headers: {
+          Authorization: `Key ${process.env.PI_API_KEY}`
+        }
+      }
+    );
+
+    return res.status(200).json(response.data);
+
   } catch (error) {
-    console.error('Kosa la complete:', error);
-    return res.status(500).json({ error: error.message });
+
+    return res.status(500).json({
+      error: error.message
+    });
+
   }
+
 }
