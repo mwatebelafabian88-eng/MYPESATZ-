@@ -1,36 +1,12 @@
-import axios from "axios";
-
 export default async function handler(req, res) {
-
-  const API_KEY";
-
-  if (req.headers["x-api-key"] !== API_KEY) {
-    return res.status(401).json({ error: "Unauthorized" });
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
   }
-
-  const { paymentId } = req.body;
-
-  try {
-
-    // APPROVE PAYMENT
-    const response = await axios.post(
-      `https://api.minepi.com/v2/payments/${paymentId}/approve`,
-      {},
-      {
-        headers: {
-          Authorization: `Key ${process.env.PI_API_KEY}`
-        }
-      }
-    );
-
-    return res.status(200).json(response.data);
-
-  } catch (error) {
-
-    return res.status(500).json({
-      error: error.message
-    });
-
-  }
-
+  
+  console.log("✅ Pi imekubali malipo!", req.body);
+  const paymentId = req.body.data.payment.id;
+  
+  // Hapa weka paymentId kwenye DB kama "pending"
+  
+  return res.status(200).json({result: "approved"});
 }
