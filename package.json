@@ -1,0 +1,12 @@
+{
+  "name": "pi-backend",
+  "version": "1.0.0",
+  "description": "Pi Network backend for Vercel",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vercel dev"
+  },
+  "dependencies": {
+    "@pinetwork-js/platform-sdk": "^0.1.3"
+  }
+}
