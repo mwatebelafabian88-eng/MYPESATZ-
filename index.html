@@ -117,15 +117,15 @@
       adInfoDiv.className = 'info';
       
       try {
-        // Hatua 1: Angalia kama ad ipo tayari
+        // 
         const adCheck = await Pi.Ads.isAdReady("rewarded");
         
         if (!adCheck.ready) {
-          adInfoDiv.innerHTML = "⏳ Tangazo halipo, naomba jipya...";
+          adInfoDiv.innerHTML = "⏳ 
           const req = await Pi.Ads.requestAd("rewarded");
           
           if (req.result !== "AD_LOADED") {
-            adInfoDiv.innerHTML = "❌ Hakuna tangazo sasa hivi. Jaribu tena baadae";
+            adInfoDiv.innerHTML 
             adInfoDiv.className = 'error';
             return;
           }
@@ -136,7 +136,7 @@
         const adResponse = await Pi.Ads.showAd("rewarded");
         console.log("Ad Response:", adResponse); 
         
-        // Hatua 3: CHUKUA adId HAPA Mkuu 👇
+        
         if (!adResponse.adId) {
           adInfoDiv.innerHTML = "❌ Ad imefail: Hakuna adId. Sababu: <br>1. Huja-approved na Pi Ad Network<br>2. Uko sandbox mode";
           adInfoDiv.className = 'error';
@@ -147,28 +147,6 @@
         adInfoDiv.innerHTML = `✅ Ad imeisha! adId: <br><b>${adResponse.adId}</b><br><br>⏳ Inathibitisha na server...`;
         adInfoDiv.className = 'success';
         
-        // MFANO WA KUTUMA KWA SERVER - Badilisha URL yako
-        /*
-        const verifyRes = await fetch('https://mypesatz.vercel.app.com/api/verify-ad', {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({
-            adId: adResponse.adId,
-            username: currentUser.username,
-            accessToken: userAccessToken
-          })
-        });
-        
-        const result = await verifyRes.json();
-        if(result.success) {
-          adInfoDiv.innerHTML = `Umepata Pesa Points 10! <br>adId: ${adResponse.adId}`;
-        } else {
-          adInfoDiv.innerHTML = `❌ AdId si halali: ${result.message}`;
-          adInfoDiv.className = 'error';
-        }
-        */
-        
-        // Kwa sasa tunaonyesha tu - TOA HII UKIWEKA SERVER
         setTimeout(() => {
           adInfoDiv.innerHTML = `🎉 Umepata Pesa Points 10! <br><b>adId:</b> ${adResponse.adId}<br><br>⚠️ MUHIMU: Thibitisha hii adId kwa server yako kabla hujalipa user`;
         }, 1500);
