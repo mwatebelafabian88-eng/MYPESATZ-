@@ -149,7 +149,7 @@
         
         // MFANO WA KUTUMA KWA SERVER - Badilisha URL yako
         /*
-        const verifyRes = await fetch('https://mypesatz.com/api/verify-ad', {
+        const verifyRes = await fetch('https://mypesatz.vercel.app.com/api/verify-ad', {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
           body: JSON.stringify({
@@ -161,7 +161,7 @@
         
         const result = await verifyRes.json();
         if(result.success) {
-          adInfoDiv.innerHTML = `🎉 Umepata Pesa Points 10! <br>adId: ${adResponse.adId}`;
+          adInfoDiv.innerHTML = `Umepata Pesa Points 10! <br>adId: ${adResponse.adId}`;
         } else {
           adInfoDiv.innerHTML = `❌ AdId si halali: ${result.message}`;
           adInfoDiv.className = 'error';
